@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container mt-5">
+    <h1>Создать новый тест</h1>
+    <form id="createTestForm">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="testTitle" class="form-label">Название теста</label>
+            <input type="text" class="form-control" id="testTitle" required>
+        </div>
+        <div class="mb-3">
+            <label for="testDescription" class="form-label">Описание</label>
+            <textarea class="form-control" id="testDescription" rows="3"></textarea>
+        </div>
+        <div id="questionsContainer"></div>
+        <button type="button" class="btn btn-primary mt-3" id="addQuestionButton">Добавить вопрос</button>
+        <button type="submit" class="btn btn-success mt-3">Сохранить тест</button>
+    </form>
+</div>
+
+<script src="{% static 'scripts/create_test.js' %}"></script>
+{% endblock %}

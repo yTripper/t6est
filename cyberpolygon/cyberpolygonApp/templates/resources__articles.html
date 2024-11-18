@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  
+
+
+  <!-- Заголовок страницы -->
+  <header class="bg-secondary text-white text-center py-5">
+    <div class="container">
+      <h1>Онлайн-статьи и исследования</h1>
+      <p class="lead">Актуальные аналитические материалы и исследования в области кибербезопасности.</p>
+    </div>
+  </header>
+
+  <!-- Секция статей -->
+  <section class="py-5">
+    <div class="container">
+      <div class="row">
+        <!-- Статья 1 -->
+        <div class="col-md-6">
+          <div class="card mb-4 shadow-sm">
+            <img src="{% static 'img/loon-image-high.jpg' %}" class="card-img-top" alt="Статья 1">
+            <div class="card-body">
+              <h5 class="card-title">Фишинг. Что это и как защититься?</h5>
+              <p class="card-text">Рассмотрение существа природы фишинга, его принцип, виды и кейсы-примеры для изучения.</p>
+              <a href="{% url 'resources__articles_fishings' %}" class="btn btn-primary">Читать статью</a>
+            </div>
+          </div>
+        </div>
+        <!-- Статья 2 -->
+        <div class="col-md-6">
+          <div class="card mb-4 shadow-sm">
+            <img src="{% static 'img/Telegram_logo.svg.webp' %}" class="card-img-top" alt="Статья 2">
+            <div class="card-body">
+              <h5 class="card-title">Анализ уязвимостей в облачных системах</h5>
+              <p class="card-text">Исследование, посвящённое анализу уязвимостей и проблем безопасности в облачных платформах и способам их устранения.</p>
+              <a href="#" class="btn btn-primary">Читать статью</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Статья 3 -->
+        <div class="col-md-6">
+          <div class="card mb-4 shadow-sm">
+            <img src="https://via.placeholder.com/500x200" class="card-img-top vh-25" alt="Статья 3">
+            <div class="card-body">
+              <h5 class="card-title">Будущее киберугроз и защита данных</h5>
+              <p class="card-text">Прогнозы экспертов по развитию киберугроз и тенденции в защите данных на ближайшие годы.</p>
+              <a href="#" class="btn btn-primary">Читать статью</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Статья 4 -->
+        <div class="col-md-6">
+          <div class="card mb-4 shadow-sm">
+            <img src="https://via.placeholder.com/500x200" class="card-img-top vh-25" alt="Статья 4">
+            <div class="card-body">
+              <h5 class="card-title">Кибератаки на критические инфраструктуры</h5>
+              <p class="card-text">Исследование по предотвращению кибератак на жизненно важные объекты и системы национальной безопасности.</p>
+              <a href="#" class="btn btn-primary">Читать статью</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+{% endblock %}

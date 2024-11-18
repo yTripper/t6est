@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div id="customAlert" class="custom-alert d-none">
+  <span id="customAlertMessage"></span>
+</div>
+<body>
+
+
+  <!-- Заголовок страницы -->
+  <header class="bg-primary text-white text-center py-5">
+    <div class="container">
+      <h1>Задания по Кибербезопасности</h1>
+      <p class="lead">Выберите задание, чтобы улучшить свои навыки!</p>
+    </div>
+  </header>
+
+  <!-- Раздел с заданиями -->
+  <section class="py-5">
+    <div class="container">
+      <div class="row">
+        <!-- Задание 1 -->
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Задание 1: Взлом веб-приложения</h5>
+              <p class="card-text">Проведите тестирование веб-приложения на наличие уязвимостей и научитесь их устранять.</p>
+              <a href="#" class="btn btn-primary">Начать задание</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Задание 2 -->
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Задание 2: Анализ сетевого трафика</h5>
+              <p class="card-text">Проанализируйте сетевой трафик и найдите подозрительные активности, которые могут указывать на атаку.</p>
+              <a href="#" class="btn btn-primary">Начать задание</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Задание 3 -->
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Задание 3: Защита от DDoS атак</h5>
+              <p class="card-text">Разработайте стратегию, а также защитите определенную систему от распределенной атаки отказа в обслуживании этой системы (DDoS).</p>
+              <a href="#" class="btn btn-primary">Начать задание</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Задание 4 -->
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Задание 4: Криптография</h5>
+              <p class="card-text">Решите задачу шифрования и дешифрования данных с использованием различных методов криптографии.</p>
+              <a href="#" class="btn btn-primary">Начать задание</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Задание 5 -->
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Задание 5: Этичный хакинг</h5>
+              <p class="card-text">Проведите легальную и этичную атаку на систему, чтобы проверить её на устойчивость.</p>
+              <a href="#" class="btn btn-primary">Начать задание</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Задание 6 -->
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Задание 6: Реагирование на инциденты</h5>
+              <p class="card-text">Разработайте план реагирования на инциденты и предотвратите утечку данных.</p>
+              <a href="#" class="btn btn-primary">Начать задание</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</body>
+
+
+{% endblock %}

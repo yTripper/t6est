@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+  <style>
+    .article-header img {
+      max-width: 100%;
+      height: auto;
+    }
+    .article-content {
+      text-align: justify;
+      line-height: 1.7;
+    }
+    .article-content p {
+      margin-bottom: 1.5rem;
+    }
+    .article-image img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 2rem 0;
+    }
+    .explanation {
+      margin-top: 10px;
+    }
+    .correct {
+      color: green;
+    }
+    .incorrect {
+      color: red;
+    }
+    .navigation-buttons {
+      margin-top: 20px;
+    }
+    .selected {
+      background-color: #28a745 !important;
+      color: white !important;
+    }
+  </style>
+
+
+
+  <header class="bg-success text-white text-center py-4">
+    <div class="container">
+      <h1>Тест на фишинг</h1>
+    </div>
+  </header>
+
+  <main class="container mt-5">
+    <div id="test-container"></div>
+
+    <!-- Панель навигации -->
+    <div class="navigation-buttons">
+      <button id="prevBtn" class="btn btn-secondary" onclick="prevQuestion()" disabled>Предыдущий</button>
+      <button id="nextBtn" class="btn btn-primary" onclick="nextQuestion()">Следующий</button>
+      <button id="finishBtn" class="btn btn-success" onclick="finishTest()" style="display: none;">Завершить тест</button>
+    </div>
+
+    <!-- Итоговый результат -->
+    <div class="mt-5" id="result-container" style="display: none;">
+      <h3>Итоговый результат:</h3>
+      <div id="result-summary"></div>
+      <p>Правильные ответы: <span id="correct-count"></span></p>
+      <p>Неправильные ответы: <span id="incorrect-count"></span></p>
+      <button id="submitResultsBtn" class="btn btn-primary d-none mt-3">Отправить результаты</button>
+      <button id="retryBtn" class="btn btn-warning mt-3" onclick="retryTest()">Повторить тест</button>
+    </div>
+  </main>
+
+
+<script>
+let currentQuestionIndex = 0;
+  let correctAnswers = 0;
+  let incorrectAnswers = 0;
+  let userAnswers = [];
+
+  let tasks = [
+    {
+      question: 'Вы получили такое письмо из банка. Откроете файл с подробностями?',
+      imgSrc: "{% static 'img/articles/fishing/pic4.png' %}",
+      correctAnswer: false
+    },
+    {
+      question: 'Вы покупаете рюкзак в интернет-магазине и переходите на страницу оплаты. Здесь всё в порядке? Можно платить?',
+      imgSrc: "{% static 'img/articles/fishing/pic5.png' %}",
+      correctAnswer: true
+    },
+    {
+      question: 'Лучший друг присылает вам в VK сообщение. Оно может быть опасным?',
+      imgSrc: "{% static 'img/articles/fishing/pic6.png' %}",
+      correctAnswer: true
+    },
+    {
+      question: 'Вы забыли свой пароль от Twitter и решили его сбросить. Вскоре вам приходит письмо. Оно кажется подозрительным. Или нет?',
+      imgSrc: "{% static 'img/articles/fishing/pic7.png' %}",
+      correctAnswer: true
+    },
+    {
+      question: 'Вам пришло СМС-сообщение от банка. Ему можно доверять?',
+      imgSrc: "{% static 'img/articles/fishing/pic8.png' %}",
+      correctAnswer: true
+    },
+    {
+      question: 'Вы продаёте велосипед через интернет. Вам приходит СМС. Пройдёте по ссылке, чтобы посмотреть, что вам предлагают?',
+      imgSrc: "{% static 'img/articles/fishing/pic9.jpg' %}",
+      correctAnswer: false
+    }
+  ];
+
+  // Функция для случайного перемешивания вопросов
+  function shuffleArray(array) {
+    return array.sort(() => Math.random() - 0.5);
+  }
+
+  // Перемешиваем задания перед тестом
+  tasks = shuffleArray(tasks);
+
+  function renderQuestion() {
+    const testContainer = document.getElementById('test-container');
+    const task = tasks[currentQuestionIndex];
+    testContainer.innerHTML = `
+      <h4>Задание ${currentQuestionIndex + 1}</h4>
+      <p>${task.question}</p>
+      <div class="article-image d-flex justify-content-center mx-auto">
+        <img src="${task.imgSrc}" alt="Пример фишинга">
+      </div>
+      <div class="options">
+        <button id="yesBtn" class="btn btn-primary me-2" onclick="selectAnswer(true)">Да</button>
+        <button id="noBtn" class="btn btn-primary" onclick="selectAnswer(false)">Нет</button>
+        <p class="explanation"></p>
+      </div>
+    `;
+
+    // Если на текущий вопрос уже был дан ответ, выделяем выбранный вариант
+    if (userAnswers[currentQuestionIndex] !== undefined) {
+      highlightSelected(userAnswers[currentQuestionIndex].userAnswer);
+    }
+  }
+
+  function highlightSelected(answer) {
+    if (answer) {
+      document.getElementById('yesBtn').classList.add('selected');
+      document.getElementById('noBtn').classList.remove('selected');
+    } else {
+      document.getElementById('noBtn').classList.add('selected');
+      document.getElementById('yesBtn').classList.remove('selected');
+    }
+  }
+
+  function selectAnswer(answer) {
+    const task = tasks[currentQuestionIndex];
+
+    // Визуальное выделение выбранного ответа
+    highlightSelected(answer);
+
+    // Запоминаем ответ пользователя
+    userAnswers[currentQuestionIndex] = {
+      question: task.question,
+      correctAnswer: task.correctAnswer,
+      userAnswer: answer,
+      isCorrect: answer === task.correctAnswer,
+      imgSrc: task.imgSrc
+    };
+  }
+
+  function nextQuestion() {
+    if (currentQuestionIndex < tasks.length - 1) {
+      currentQuestionIndex++;
+      renderQuestion();
+      document.getElementById('prevBtn').disabled = false;
+    }
+    
+    if (currentQuestionIndex === tasks.length - 1) {
+      document.getElementById('nextBtn').style.display = 'none';
+      document.getElementById('finishBtn').style.display = 'inline-block';
+    }
+  }
+
+  function prevQuestion() {
+    if (currentQuestionIndex > 0) {
+      currentQuestionIndex--;
+      renderQuestion();
+      document.getElementById('nextBtn').style.display = 'inline-block';
+      document.getElementById('finishBtn').style.display = 'none';
+    }
+    
+    if (currentQuestionIndex === 0) {
+      document.getElementById('prevBtn').disabled = true;
+    }
+  }
+
+  function finishTest() {
+    const testContainer = document.getElementById('test-container');
+    const resultContainer = document.getElementById('result-container');
+    const resultSummary = document.getElementById('result-summary');
+    const correctCount = document.getElementById('correct-count');
+    const incorrectCount = document.getElementById('incorrect-count');
+    const submitResultsBtn = document.getElementById('submitResultsBtn'); // Добавляем кнопку для отправки
+
+    testContainer.style.display = 'none';
+    resultContainer.style.display = 'block';
+
+    let resultHTML = '';
+    correctAnswers = 0;
+    incorrectAnswers = 0;
+
+    userAnswers.forEach((answer, index) => {
+        resultHTML += `
+          <div>
+            <h5>Вопрос ${index + 1}</h5>
+            <p>${answer.question}</p>
+            <p><strong>Ваш ответ:</strong> ${answer.userAnswer ? 'Да' : 'Нет'}</p>
+            <p><strong>Правильный ответ:</strong> ${answer.correctAnswer ? 'Да' : 'Нет'}</p>
+            <p class="${answer.isCorrect ? 'correct' : 'incorrect'}">
+              ${answer.isCorrect ? 'Правильно!' : 'Ошибка!'}
+            </p>
+          </div>
+        `;
+        if (answer.isCorrect) {
+            correctAnswers++;
+        } else {
+            incorrectAnswers++;
+        }
+    });
+
+    resultSummary.innerHTML = resultHTML;
+    correctCount.textContent = correctAnswers;
+    incorrectCount.textContent = incorrectAnswers;
+
+    submitResultsBtn.classList.remove('d-none'); // Показываем кнопку отправки
+}
+
+function submitResults() {
+    if (db) {
+        const transaction = db.transaction(["testResults"], "readwrite");
+        const store = transaction.objectStore("testResults");
+
+        // Проверьте, что значения корректные
+        console.log("Correct Answers:", correctAnswers);
+        console.log("Incorrect Answers:", incorrectAnswers);
+
+        const resultData = {
+            correctAnswers: correctAnswers || 0, // Если нет данных, ставим 0
+            incorrectAnswers: incorrectAnswers || 0,
+            timestamp: new Date().toISOString()
+        };
+
+        const request = store.add(resultData);
+        request.onsuccess = () => {
+            console.log("Результаты успешно отправлены в базу данных.");
+            showCustomAlert("Результаты успешно отправлены в базу данных.", 'success');
+        };
+        request.onerror = (event) => {
+            console.log("Ошибка при отправке результатов в базу данных:", event);
+        };
+    } else {
+        console.log("База данных не открыта.");
+    }
+// Добавьте этот код после успешной записи данных в базу в submitResults
+const transaction = db.transaction(["testResults"], "readonly");
+const store = transaction.objectStore("testResults");
+const request = store.getAll();
+request.onsuccess = (event) => {
+    const results = event.target.result;
+    console.log("Проверка данных в базе:", results); // Проверим, что данные записались
+};
+
+}
+
+
+  function retryTest() {
+    currentQuestionIndex = 0;
+    correctAnswers = 0;
+    incorrectAnswers = 0;
+    userAnswers = [];
+    tasks = shuffleArray(tasks); // Перемешиваем снова при перезапуске
+    document.getElementById('test-container').style.display = 'block';
+    document.getElementById('result-container').style.display = 'none';
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    document.getElementById('finishBtn').style.display = 'none';
+    document.getElementById('prevBtn').disabled = true;
+    renderQuestion(); // Начинаем тест заново
+  }
+
+  // Инициализация первого вопроса при загрузке страницы
+  document.addEventListener('DOMContentLoaded', renderQuestion);
+  document.getElementById('submitResultsBtn').addEventListener('click', submitResults); // Добавляем обработчик
+  
+</script>
+{% endblock %}

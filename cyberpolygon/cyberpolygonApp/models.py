@@ -128,8 +128,10 @@ class Answer(models.Model):
     id = models.AutoField(primary_key=True, db_index=True)
     question_id = models.ForeignKey('Question', on_delete=models.PROTECT)
     answer_text = models.TextField()
+    is_correct = models.BooleanField(default=False)
 
 
 class CorrectAnswer(models.Model):
     question_id = models.ForeignKey('Question', on_delete=models.PROTECT)
     answer_id = models.ForeignKey('Answer', on_delete=models.PROTECT)
+

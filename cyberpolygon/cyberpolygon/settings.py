@@ -202,6 +202,7 @@ REST_FRAMEWORK = {
 #CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
 CSRF_COOKIE_DOMAIN = None
 CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_HTTPONLY = False
 
 CORS_ALLOWED_ORIGINS = [
         "http://localhost:3000",
@@ -223,5 +224,3 @@ ALLOWED_HTML_ATTRIBUTES = [
     "scope", "src", "style", "title", "type", "width"
 ]
 
-
-CSRF_COOKIE_HTTPONLY = False

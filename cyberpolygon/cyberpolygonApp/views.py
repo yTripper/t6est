@@ -313,69 +313,155 @@ def take_test(request):
     )
 
 class TestGetPost(APIView):
-    @requires_csrf_token
     def get(self, request):
-        test = get_or_none(Test, title=request.data.get('title'))
-        if test is None:
-            return Response({'detail': 'Теста с таким заголовком не существует'}, status=status.HTTP_400_BAD_REQUEST)
-        questionSet = Question.objects.filter(test_id=test.id).order_by("?")
-        questions = {}
-        for question in questionSet:
-            answersSet = Answer.objects.filter(question_id=question)
-            answers = {}
-            for answer in answersSet:
-                answers[answer.id] = answer.answer_text
-            questions[question.id] = [question.question_text, answers]
-        return Response(data={"title":test.title, "description":test.description, "createdAt":test.created_at, "questions":questions},
-                            status=status.HTTP_200_OK)
-    @requires_csrf_token
+        # Проверяем, есть ли параметр title
+        title = request.GET.get('title')
+
+        if title:
+            # Если передан title, возвращаем конкретный тест
+            test = get_or_none(Test, title=title)
+            if test is None:
+                return Response({'detail': 'Теста с таким заголовком не существует'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Формируем список вопросов и ответов
+            question_set = Question.objects.filter(test_id=test.id).order_by("?")
+            questions = {}
+            for question in question_set:
+                answers_set = Answer.objects.filter(question_id=question)
+                answers = [
+                    {
+                        "id": answer.id,
+                        "text": answer.answer_text,
+                        "is_correct": answer.is_correct  # Добавляем правильность ответа
+                    }
+                    for answer in answers_set
+                ]
+                questions[question.id] = {"question_text": question.question_text, "answers": answers}
+
+            return Response(
+                data={
+                    "title": test.title,
+                    "description": test.description,
+                    "createdAt": test.created_at,
+                    "questions": questions,
+                },
+                status=status.HTTP_200_OK,
+            )
+        else:
+            # Если title не передан, возвращаем список всех тестов
+            tests = Test.objects.all().order_by('-created_at')  # Сортируем по дате создания
+            test_list = [
+                {"title": test.title, "description": test.description, "createdAt": test.created_at}
+                for test in tests
+            ]
+            return Response(data={"tests": test_list}, status=status.HTTP_200_OK)
+
+
     def post(self, request):
         serializer = TestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
-        title = serializer.validated_data['title']
-        description = serializer.validated_data['description']
 
-        serializer.save(request.data)
-        return Response(data={"title":title, "description":description, "createdAt":datetime.date.today()}, status=status.HTTP_200_OK)
+        # Создаем новый тест
+        test = serializer.save()
+        return Response(
+            data={
+                "title": test.title,
+                "description": test.description,
+                "createdAt": test.created_at,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+
+
+
+
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .models import Test, Question, Answer, CorrectAnswer
+from .serializers import CorrectAnswerSerializer
 
 class TestQuestionsAnswersPost(APIView):
-    @requires_csrf_token
     def post(self, request):
+        # Проверяем существование теста
         test = get_or_none(Test, title=request.data.get('title'))
         if test is None:
-            return Response({'detail': 'Теста с таким заголовком не существует'}, status=status.HTTP_400_BAD_REQUEST)
-        questions = request.data.get("questions")
-        for question in questions:
-            m_question = Question.objects.create(test_id=test.id, question_text=question[0], created_at=datetime.date.today())
-            m_question.save()
-            answers = question[1]
-            for answer in answers:
-                m_answer = Answer.objects.create(question_id=m_question, answer_text=answer[0])
-                m_answer.save()
-                if answer[1] == True:
-                    m_correct_answer = CorrectAnswer.objects.create(question_id=m_question, answer_id=m_answer)
-                    m_correct_answer.save()
-        return Response(data={"detail":"Тест успешно создан"}, status=status.HTTP_200_OK)
+            return Response({'detail': 'Теста с таким заголовком не существует'}, status=400)
+
+        # Обрабатываем вопросы и ответы
+        questions_data = request.data.get("questions", [])
+        for question_data in questions_data:
+            question = Question.objects.create(
+                test_id=test,
+                question_text=question_data['question_text'],
+                created_at=datetime.date.today()
+            )
+            
+            for answer_data in question_data.get('answers', []):
+                answer = Answer.objects.create(
+                    question_id=question,
+                    answer_text=answer_data['answer_text'],
+                    is_correct=answer_data.get('is_correct', False)
+                )
+                
+                if answer_data.get('is_correct', False):
+                    correct_answer_data = {
+                        'question_id': question.id,
+                        'answer_id': answer.id
+                    }
+                    serializer = CorrectAnswerSerializer(data=correct_answer_data)
+                    if serializer.is_valid():
+                        serializer.save()
+                    else:
+                        return Response(serializer.errors, status=400)
+
+        return Response({'detail': 'Тест успешно создан'}, status=200)
+
+
+
+
 
 class TestCheckAnswers(APIView):
-    @requires_csrf_token
     def post(self, request):
-        test = get_or_none(Test, title=request.data.get('title'))
+        # Проверка существования теста
+        test_title = request.data.get('title')
+        if not test_title:
+            return Response({'detail': 'Заголовок теста не предоставлен'}, status=status.HTTP_400_BAD_REQUEST)
+
+        test = get_or_none(Test, title=test_title)
         if test is None:
             return Response({'detail': 'Теста с таким заголовком не существует'}, status=status.HTTP_400_BAD_REQUEST)
-        questions = request.data.get('questions')
-        result = {}
-        for question in questions:
-            m_question = Question.objects.get(test_id=test.id, id=question)
-            flag = True
-            for answer in questions.get(question):
-                m_answer = Answer.objects.get(id=answer)
-                if not CorrectAnswer.objects.filter(question_id=m_question, answer_id=m_answer):
-                    result[question] = False
-                    flag = False
-                    break
-            if flag:
-                result[question] = True
 
-        return Response({"result":result}, status=status.HTTP_200_OK)   
+        # Получение ответов на вопросы
+        questions = request.data.get('questions', {})
+        if not isinstance(questions, dict) or not questions:
+            return Response({'detail': 'Ответы на вопросы не предоставлены или имеют неверный формат'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Предзагрузка вопросов и правильных ответов
+        question_ids = questions.keys()
+        db_questions = Question.objects.filter(test=test, id__in=question_ids).prefetch_related('correctanswer_set')
+        question_map = {str(q.id): q for q in db_questions}  # Преобразуем ID в строку для сравнения с request.data
+
+        result = {}
+        for question_id, submitted_answers in questions.items():
+            if not isinstance(submitted_answers, list):
+                result[question_id] = False
+                continue
+
+            # Находим вопрос
+            question = question_map.get(str(question_id))
+            if not question:
+                result[question_id] = False
+                continue
+
+            # Получаем правильные ответы
+            correct_answers = set(
+                question.correctanswer_set.values_list('answer_id', flat=True)
+            )
+            submitted_answers_set = set(submitted_answers)
+
+            # Сравниваем правильные ответы с отправленными
+            result[question_id] = correct_answers == submitted_answers_set
+
+        return Response({"result": result}, status=status.HTTP_200_OK)

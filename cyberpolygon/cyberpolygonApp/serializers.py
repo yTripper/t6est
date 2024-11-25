@@ -90,16 +90,39 @@ class TestSerializer(serializers.ModelSerializer):
         model = Test
         fields = ['title', 'description', 'created_at']
 
-    # Исправляем метод validate, чтобы проверять все данные
+    # Валидация для проверки уникальности заголовка
     def validate(self, data):
         if Test.objects.filter(title=data['title']).exists():
             raise serializers.ValidationError("Такой тест уже существует")
         return data
 
-    # Используем super().save(), чтобы автоматически сохранить объект
-    def save(self):
-        # Дополнительно можем установить created_at вручную, если нужно
-        data = self.validated_data
-        data['created_at'] = datetime.date.today()
-        test = super().save()
-        return test
+    # Метод save для создания объекта Test
+    def create(self, validated_data):
+        # Устанавливаем дату создания
+        validated_data['created_at'] = datetime.date.today()
+        # Создаем объект Test
+        return Test.objects.create(**validated_data)
+    
+class AnswerSerializer(serializers.ModelSerializer):
+    is_correct = serializers.BooleanField(required=True)
+
+    class Meta:
+        model = Answer
+        fields = ['answer_text', 'is_correct']
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    answers = AnswerSerializer(many=True)
+
+    class Meta:
+        model = Question
+        fields = ['question_text', 'answers']
+
+from rest_framework import serializers
+from .models import CorrectAnswer, Answer, Question
+
+class CorrectAnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CorrectAnswer
+        fields = ['question_id', 'answer_id']
+

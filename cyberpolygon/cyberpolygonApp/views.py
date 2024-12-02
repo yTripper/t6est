@@ -422,46 +422,72 @@ class TestQuestionsAnswersPost(APIView):
 
 
 
+from django.http import JsonResponse
+from rest_framework import status
+
+import logging
+logger = logging.getLogger(__name__)
+
 class TestCheckAnswers(APIView):
     def post(self, request):
-        # Проверка существования теста
-        test_title = request.data.get('title')
-        if not test_title:
-            return Response({'detail': 'Заголовок теста не предоставлен'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            test_title = request.data.get('title')
+            if not test_title:
+                return Response({'detail': 'Заголовок теста не предоставлен'}, status=status.HTTP_400_BAD_REQUEST)
 
-        test = get_or_none(Test, title=test_title)
-        if test is None:
-            return Response({'detail': 'Теста с таким заголовком не существует'}, status=status.HTTP_400_BAD_REQUEST)
+            # Получаем тест по заголовку
+            test = get_or_none(Test, title=test_title)
+            if test is None:
+                return Response({'detail': 'Теста с таким заголовком не существует'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Получение ответов на вопросы
-        questions = request.data.get('questions', {})
-        if not isinstance(questions, dict) or not questions:
-            return Response({'detail': 'Ответы на вопросы не предоставлены или имеют неверный формат'}, status=status.HTTP_400_BAD_REQUEST)
+            # Получаем ответы на вопросы
+            questions = request.data.get('questions', {})
+            if not isinstance(questions, dict) or not questions:
+                return Response({'detail': 'Ответы на вопросы не предоставлены или имеют неверный формат'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Предзагрузка вопросов и правильных ответов
-        question_ids = questions.keys()
-        db_questions = Question.objects.filter(test=test, id__in=question_ids).prefetch_related('correctanswer_set')
-        question_map = {str(q.id): q for q in db_questions}  # Преобразуем ID в строку для сравнения с request.data
+            # Загружаем вопросы и правильные ответы
+            question_ids = questions.keys()
+            db_questions = Question.objects.filter(test_id=test.id, id__in=question_ids).prefetch_related('correctanswer_set')
+            question_map = {str(q.id): q for q in db_questions}
 
-        result = {}
-        for question_id, submitted_answers in questions.items():
-            if not isinstance(submitted_answers, list):
-                result[question_id] = False
-                continue
+            result = {}
+            for question_id, submitted_answers in questions.items():
+                if not isinstance(submitted_answers, list):
+                    result[question_id] = {
+                        "correct": False,
+                        "submitted_answers": submitted_answers,
+                        "correct_answers": []
+                    }
+                    continue
 
-            # Находим вопрос
-            question = question_map.get(str(question_id))
-            if not question:
-                result[question_id] = False
-                continue
+                # Получаем вопрос из карты
+                question = question_map.get(str(question_id))
+                if not question:
+                    result[question_id] = {
+                        "correct": False,
+                        "submitted_answers": submitted_answers,
+                        "correct_answers": []
+                    }
+                    continue
 
-            # Получаем правильные ответы
-            correct_answers = set(
-                question.correctanswer_set.values_list('answer_id', flat=True)
-            )
-            submitted_answers_set = set(submitted_answers)
+                # Получаем правильные ответы
+                correct_answers = set(
+                    CorrectAnswer.objects.filter(question_id=question.id).values_list('answer_id', flat=True)
+                )
 
-            # Сравниваем правильные ответы с отправленными
-            result[question_id] = correct_answers == submitted_answers_set
+                # Сравниваем правильные ответы с отправленными
+                submitted_answers_set = set(map(int, submitted_answers))  # Преобразуем ответы в числа
+                is_correct = correct_answers == submitted_answers_set
 
-        return Response({"result": result}, status=status.HTTP_200_OK)
+                # Формируем результат
+                result[question_id] = {
+                    "correct": is_correct,
+                    "submitted_answers": list(submitted_answers_set),
+                    "correct_answers": list(correct_answers)
+                }
+
+            return Response({"result": result}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            logger.error(f"Произошла ошибка: {str(e)}", exc_info=True)
+            return JsonResponse({"detail": "Внутренняя ошибка сервера"}, status=500)

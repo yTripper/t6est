@@ -11,13 +11,33 @@ from martor.utils import LazyEncoder
 from django.template import loader
 import datetime
 from .models import Test, Question, Answer, CorrectAnswer
-from .serializers import TestSerializer, CorrectAnswerSerializer
-
+from .serializers import *
 import base64
 import json
 
 from .forms import *
 
+# Временно
+from asgiref.sync import sync_to_async
+from django.shortcuts import render
+from django.views.decorators.csrf import requires_csrf_token
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.http import HttpResponse
+from rest_framework.authtoken.views import ObtainAuthToken
+from django.contrib.auth import authenticate, login, logout
+from dj_rest_auth.registration.views import SocialLoginView
+from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
+from allauth.socialaccount.providers.yandex.views import YandexAuth2Adapter
+from allauth.socialaccount.providers.telegram.views import LoginView
+from cyberpolygonApp.utils import get_or_none
+from django_otp.plugins.otp_totp.models import TOTPDevice
+from .serializers import *
+
+import qrcode
+import io
+import base64
 
 class GetMarkdownPost(APIView):
     @requires_csrf_token
@@ -202,11 +222,8 @@ class TestGetPost(APIView):
 
 
     def post(self, request):
-        print("Received data:", request.data)
         serializer = TestSerializer(data=request.data)
-        if not serializer.is_valid():
-            print("Validation errors:", serializer.errors)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
 
         # Создаем новый тест
         test = serializer.save()
@@ -264,6 +281,7 @@ class TestQuestionsAnswersPost(APIView):
                         return Response(serializer.errors, status=400)
 
         return Response({'detail': 'Тест успешно создан'}, status=200)
+
 
 
 
@@ -338,3 +356,42 @@ class TestCheckAnswers(APIView):
         except Exception as e:
             logger.error(f"Произошла ошибка: {str(e)}", exc_info=True)
             return JsonResponse({"detail": "Внутренняя ошибка сервера"}, status=500)
+
+
+
+# Временно
+class LoginView(ObtainAuthToken):
+    @csrf_exempt
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        username = serializer.validated_data['username']
+        password = serializer.validated_data['password']
+        
+        user_qs = User.objects.filter(username=username)
+        if user_qs.count() == 0:
+            return Response({"detail": "Пользователя с таким именем не существует"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            return Response({"detail": "Успешная авторизация"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "Неправильное имя пользователя или пароль"}, status=status.HTTP_401_UNAUTHORIZED)
+
+class LogoutView(APIView):
+       @csrf_exempt
+       def post(self, request):
+        logout(request)
+        return Response({"detail": "Выход успешно выполнен"}, status=status.HTTP_200_OK)
+    
+class RegisterView(APIView):
+    @csrf_exempt
+    def post(self, request):
+        serializer = RegistrationSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(request)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -25,6 +25,9 @@ urlpatterns = [
     path('api/tests/', views.TestGetPost.as_view(), name="get_post_test"),
     path('api/tests/content/', views.TestQuestionsAnswersPost.as_view(), name="test_questions_answers_post" ),
     path('api/tests/check/', views.TestCheckAnswers.as_view(), name="test_check_answers"),
+    path('api/auth/login/', views.LoginView.as_view(), name='login'),
+    path('api/auth/logout/', views.LogoutView.as_view(), name='logout'),
+    path('api/auth/signup/', views.RegisterView.as_view(), name='registration'),
 ]
 
 

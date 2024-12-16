@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  
+    <!-- Заголовок страницы -->
+    <header class="bg-primary text-white text-center py-5">
+      <div class="container">
+        <h1>Ресурсы по Кибербезопасности</h1>
+        <p class="lead">Здесь вы найдете материалы для углубленного изучения кибербезопасности.</p>
+      </div>
+    </header>
+  
+    <!-- Раздел ресурсов -->
+    <section class="py-5">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+              <img src="https://via.placeholder.com/350x150" class="card-img-top" alt="Ресурс 1">
+              <div class="card-body">
+                <h5 class="card-title">Пользовательские статьи</h5>
+                <p class="card-text">Список рекомендуемых книг для изучения основ и продвинутых техник кибербезопасности.</p>
+                <a href="{% url 'custom_articles' %}" class="btn btn-primary">Читать больше</a>
+              </div>
+            </div>
+          </div>
+  
+          <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+              <img src="{% static 'img/office.jpg' %}" class="card-img-top" alt="Ресурс 2">
+              <div class="card-body">
+                <h5 class="card-title">Онлайн-статьи и исследования</h5>
+                <p class="card-text">Аналитические статьи и исследования в области информационной безопасности.</p>
+                <a href="{% url 'resources__articles' %}" class="btn btn-primary">Читать больше</a>
+              </div>
+            </div>
+          </div>
+  
+          <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+              <img src="https://via.placeholder.com/350x150" class="card-img-top" alt="Ресурс 3">
+              <div class="card-body">
+                <h5 class="card-title">Тесты</h5>
+                <p class="card-text">Пошаговые руководства по защите данных и предотвращению угроз.</p>
+                <a href="{% url 'tests' %}" id="readMoreBtn" class="btn btn-primary">Читать больше</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  
+{% endblock %}

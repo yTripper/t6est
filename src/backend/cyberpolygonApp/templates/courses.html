@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+  <header class="bg-primary text-white text-center py-5">
+    <div class="container">
+      <h1>Обучающие курсы по Кибербезопасности</h1>
+      <p class="lead">Развивайте навыки защиты информации и борьбы с киберугрозами!</p>
+    </div>
+  </header>
+
+  <section class="py-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+            <img src="https://via.placeholder.com/350x150" class="card-img-top" alt="Курс 1">
+            <div class="card-body">
+              <h5 class="card-title">Основы кибербезопасности</h5>
+              <p class="card-text">Познакомьтесь с основами кибербезопасности, узнайте о типичных угрозах и методах их предотвращения.</p>
+              <a href="#" class="btn btn-primary">Подробнее</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+            <img src="https://via.placeholder.com/350x150" class="card-img-top" alt="Курс 2">
+            <div class="card-body">
+              <h5 class="card-title">Этичный хакинг</h5>
+              <p class="card-text">Узнайте, как этичные хакеры помогают защищать системы и выявлять уязвимости систем.</p>
+              <a href="#" class="btn btn-primary">Подробнее</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+            <img src="https://via.placeholder.com/350x150" class="card-img-top" alt="Курс 3">
+            <div class="card-body">
+              <h5 class="card-title">Защита сети</h5>
+              <p class="card-text">Изучите методы защиты сетевых систем и предотвращения атак на конкретную инфраструктуру.</p>
+              <a href="#" class="btn btn-primary">Подробнее</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {% endblock %}

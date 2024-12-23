@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Основной контент -->
+<div class="container">
+    <h2 class="mb-4">Редактор статьи</h2>
+    <form>
+        <div class="mb-3">
+            <label for="title" class="form-label">Заголовок статьи</label>
+            <input type="text" class="form-control" id="title" placeholder="Введите заголовок статьи">
+        </div>
+
+        <div class="mb-3">
+            <label for="markdown-editor" class="form-label">Текст статьи (Markdown)</label>
+            <textarea id="markdown-editor" class="form-control" rows="10"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Подтвердить изменения</button>
+    </form>
+</div>
+<script>
+  // Инициализация Markdown редактора
+  var simplemde = new SimpleMDE({ element: document.getElementById("markdown-editor") });
+</script>
+{% endblock %}

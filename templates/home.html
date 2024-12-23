@@ -1,0 +1,258 @@
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    {% load static %}
+
+    <link rel="stylesheet" href="{% static 'styles/style.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/simplemde@1.11.2/dist/simplemde.min.css" rel="stylesheet">
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+            integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+            integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simplemde@1.11.2/dist/simplemde.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <!-- Font Awesome Icons -->
+    {% block head_links %}
+    {% endblock %}
+
+</head>
+<div id="customAlert" class="custom-alert d-none">
+    <span id="customAlertMessage"></span>
+</div>
+<body class="body__background text-light">
+    <nav class="w-100 h-auto navbar position-absolute navbar navbar-expand-md">
+        <h1 class="ms-2 my-3"><a class="text-light" href="{% url 'home' %}">Киберполигон</a></h1>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="border-0"><img src="{% static 'img/menu-button.png' %}" width="40rem"></span>
+        </button>
+        <div class="collapse navbar-collapse ms-2" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link text-light" aria-current="page" href="{% url 'home' %}">Главная</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-light" href="{% url 'training' %}">Тренировка</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-light" href="{% url 'courses' %}">Курсы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-light" href="{% url 'resources' %}">Ресурсы</a>
+                </li>
+
+                <!-- Кнопка "Войти", которая заменяется на выпадающий список профиля -->
+                <li class="nav-item" id="loginLink">
+                    <button class="nav-link text-decoration-underline text-light me-2 btn" data-bs-toggle="modal" data-bs-target="#loginModal">Войти</button>
+                </li>
+
+                <!-- Выпадающий список профиля -->
+                <li class="nav-item dropdown" id="profileDropdown" style="display: none;">
+                    <a class="nav-link dropdown-toggle text-light" href="#" id="profileMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span id="usernameDisplay">Профиль</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
+                        <li><a class="dropdown-item" href="{% url 'personal_account' %}">Профиль</a></li>
+                        <li><a class="dropdown-item" href="" id="logoutButton">Выйти</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <header class="d-flex justify-content-center align-items-center primary__background" style="height: 100vh;">
+        <div class="text-center primary-text__background p-3">
+            <h2>Добро пожаловать на Киберполигон!</h2>
+            <p>
+                Киберполигон - это место для обучения и тренировки
+                специалистов по кибер-безопасности.
+            </p>
+        </div>
+    </header>
+    <!-- Секция о нас -->
+    <main class="text-center justify-content-center align-items-center mt-5 animate about-section">
+        <img src="{% static 'img/polytech-logo-png.png' %}" alt="Логотип Московского Политехнического Университета" class="about-section__logotype" width="550rem">
+        <h3>О нас</h3>
+        <p class="about-section__description justify-content-center align-items-center m-auto lead">
+            Мы — команда Московского Политехнического Университета.
+            Мы создаем площадку для обеспечения практического обучения и подготовки специалистов
+            в области кибербезопасности, проведения исследований и разработок, повышения безопасности систем и сетей, улучшения навыков преподавателей,
+            сотрудничества с отраслью, повышения осведомленности и подготовки киберспециалистов.
+        </p>
+        <h3 class="mt-5">Наши преимущества</h3>
+        <div class="d-flex flex-row justify-content-center p-5 pt-3 about-section__container flex-wrap gap-4">
+            <div class="about-section__list">
+                <h4>Реалистичные сценарии кибератак</h4>
+                <p class="align-content-center">Практические задания основаны на актуальных киберугрозах, что позволяет участникам погружаться в реальные ситуации.</p>
+            </div>
+            <div class="about-section__list">
+                <h4>Обучение от экспертов</h4>
+                <p class="align-content-center">
+                    Наши тренеры — профессионалы с многолетним опытом в области кибербезопасности, которые делятся практическими знаниями
+                    и последними тенденциями в отрасли.
+                </p>
+            </div>
+            <div class="about-section__list">
+                <h4>Интерактивная платформа</h4>
+                <p class="align-content-center">Удобный интерфейс и геймифицированные элементы обучения помогают сделать процесс обучения увлекательным и продуктивным.</p>
+            </div>
+            <div class="about-section__list">
+                <h4>Адаптивные программы</h4>
+                <p class="align-content-center">Мы предлагаем курсы как для новичков, так и для опытных специалистов, что позволяет каждому обучающемуся расти в своем темпе.</p>
+            </div>
+        </div>
+    </main>
+    <footer class="w-100 h-auto mt-5 p-5">
+        <div class="navbar footer__container">
+            <p class="mt-5 footer__container-cyberpoligon">© 2024 Киберполигон</p>
+            <div class="d-flex flex-column footer__container-information">
+                <p class="m-auto justify-content-center mb-3">Контактная информация</p>
+                <address class="d-flex flex-row gap-2 flex-wrap footer__address">
+                    <a href="tel:+79885024344"><img src="{% static 'img/accept-phone-icon-social-icon-set-png.webp' %}" alt="" width="40rem" class="footer__container-img"></a>
+                    <p class="m-2">+79885024344</p>
+                    <p class="m-2 footer__container-line">|</p>
+                    <a href="mailto:polytech@polytech.ru"><img src="{% static 'img/112-gmail_email_mail-512.webp' %}" alt="" width="40rem" class="footer__container-img"></a>
+                    <p class="m-2">polytech@polytech.ru</p>
+                </address>
+            </div>
+            <div class="d-flex flex-column footer__container-social-media">
+                <p class="m-auto justify-content-center mb-3">Мы в соц. сетях</p>
+                <address class="d-flex flex-row gap-2">
+                    <a href="https://t.me/beloarte"><img src="{% static 'img/Telegram_logo.svg.webp' %}" alt="Логотип Телеграм" width="40rem"></a>
+                    <a href=""><img src="{% static 'img/VK_Compact_Logo_(2021-present).svg.png' %}" alt="Логотип ВК" width="40rem"></a>
+                    <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="mt-1"><img src="{% static 'img/Youtube_logo.png' %}" alt="Логотип Ютуб" width="45rem"></a>
+                </address>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+<!-- Форма регистрации -->
+<div class="modal fade" id="loginModal" method="POST" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginModalLabel">Вход</h5>
+                <button type="button" class="btn-close bg-light" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Форма входа -->
+                <form>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">Введите имя пользователя</label>
+                        <input type="text" class="form-control" id="id_username_login" placeholder="Введите имя пользователя" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_password" class="form-label">Введите Пароль</label>
+                        <input type="password" class="form-control" id="id_password" placeholder="Введите пароль" required>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" id="showPassword">
+                        <label class="form-check-label" for="showPassword">Показать пароль</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Войти</button>
+                    <div class="gap-2 d-flex justify-content-center mt-2">
+                        <a href="mt-5"><img src="{% static 'img/Telegram_logo.svg.webp' %}" alt="Логотип Телеграм" width="40rem" class="mt-1"></a>
+                        <a href="" class=""><img src="{% static 'img/Yandex_icon.svg.png' %}" alt="Логотип Яндекс" width="50rem"></a>
+                        <a href="mt-5"><img src="{% static 'img/github-icon-2.svg' %}" alt="Логотип Телеграм" width="40rem" class="mt-1"></a>
+                    </div>
+                    {% if redirect_field_value %}
+
+                    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+
+                    {% endif %}
+                </form>
+            </div>
+            <div class="modal-footer d-flex flex-column justify-content-center">
+                <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#resetPasswordModal" data-bs-dismiss="modal">Забыли пароль?</a>
+                <p class="mb-0">
+                    Нет аккаунта? <a href="#" class="text-decoration-none" data-bs-toggle="modal"
+                                     data-bs-target="#registrationModal" data-bs-dismiss="modal">Зарегистрироваться</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Модальное окно Регистрация -->
+<div class="modal fade" id="registrationModal" tabindex="-1" aria-labelledby="registrationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registrationModalLabel">Регистрация</h5>
+                <button type="button" class="btn-close bg-light" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="signup_form" method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">Введите Имя пользователя</label>
+                        <input type="text" class="form-control" id="id_username_register" placeholder="Введите ваше имя" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_email" class="form-label">Введите ваш Email</label>
+                        <input type="email" class="form-control" id="id_email" placeholder="example@domain.com" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_password1" class="form-label">Введите Пароль</label>
+                        <input type="password" class="form-control" id="id_password1" placeholder="Введите пароль" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_password2" class="form-label">Введите Пароль еще раз</label>
+                        <input type="password" class="form-control" id="id_password2" placeholder="Повторите пароль" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal">Вернуться ко входу</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно Восстановление пароля -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resetPasswordModalLabel">Восстановление пароля</h5>
+                <button type="button" class="btn-close bg-light" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="resetEmail" class="form-label">Введите ваш email</label>
+                        <input type="email" class="form-control" id="resetEmail" placeholder="example@domain.com" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Отправить</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal">Вернуться ко входу</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Конец тут -->
+
+<script src="{% static 'scripts/test.js' %}"></script>
+<script src="{% static 'scripts/auth.js' %}"></script>
+<script src="{% static 'scripts/main.js' %}"></script>
+</html>
